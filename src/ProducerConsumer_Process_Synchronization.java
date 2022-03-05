@@ -1,7 +1,43 @@
+import java.util.Random;
+
 public class ProducerConsumer_Process_Synchronization {
-    private final int SIZE = 5;
+    private static final int SIZE = 5;
 
     public static void main(String[] args) {
+        Buffer buffer = new Buffer(SIZE);
+
+        Random random = new Random();
+        int missions = random.nextInt(20);
+        Producer producer = new Producer(buffer, missions);
+
+    }
+}
+
+class Producer extends Thread {
+    private Buffer buffer;
+    private int produced;
+
+    public Producer(Buffer buffer, int produced) {
+        this.buffer = buffer;
+        this.produced = produced;
+        if (produced > 2) {
+            System.out.println(this.produced + " items were produced.");
+        } else {
+            System.out.println(this.produced + " item was produced");
+        }
+    }
+
+    public void run() {
+        for (int i = 0; i < produced; i++) {
+            buffer.put(i);
+            try {
+                Random random = new Random();
+                int sleep = random.nextInt(1000);
+                sleep(sleep);
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
+        }
 
     }
 }
@@ -11,7 +47,6 @@ class Buffer {
     private int write;//producer
     private int read;//consumer
     private int count;//number of items in buffer
-    //private boolean available;//available to read/write, AKA empty or full
 
     public Buffer(int size) {
         buffer = new int[size];
@@ -23,6 +58,7 @@ class Buffer {
     public synchronized int put(int value) {
         int size = buffer.length;
         while (count == size) {
+            System.out.println("The buffer is full, stop producing!");
             try {
                 wait();
             } catch (InterruptedException ie) {
@@ -40,6 +76,7 @@ class Buffer {
     public synchronized int withdraw() {
         int size = buffer.length;
         while (count == 0) {
+            System.out.println("Buffer is empty, stop consuming!");
             try {
                 wait();
             } catch (InterruptedException ie) {
