@@ -7,9 +7,9 @@ public class ProducerConsumer_Process_Synchronization {
         Buffer buffer = new Buffer(SIZE);
 
         Random random = new Random();
-        int missions = random.nextInt(20);
+        int missions = random.nextInt(20) + 1;
         Producer producer = new Producer(buffer, missions);
-        Consumer consumer = new Consumer(buffer,missions);
+        Consumer consumer = new Consumer(buffer, missions);
         producer.start();
         consumer.start();
     }
@@ -35,7 +35,6 @@ class Producer extends Thread {
             try {
                 Random random = new Random();
                 int sleep = random.nextInt(100);
-                //System.out.println("Producer sleeping: "+sleep);
                 //int sleep =100;
                 sleep(sleep);
             } catch (InterruptedException ie) {
@@ -46,11 +45,11 @@ class Producer extends Thread {
     }
 }//end Producer
 
-class Consumer extends Thread{
+class Consumer extends Thread {
     private Buffer buffer;
     private int consumed;
 
-    public Consumer(Buffer buffer,int consumed){
+    public Consumer(Buffer buffer, int consumed) {
         this.buffer = buffer;
         this.consumed = consumed;
         if (consumed > 2) {
@@ -60,14 +59,13 @@ class Consumer extends Thread{
         }
     }
 
-    public void run(){
+    public void run() {
         for (int i = 0; i < consumed; i++) {
-            buffer.withdraw();
+            buffer.remove();
             try {
                 Random random = new Random();
-                int sleep = random.nextInt(100);
+                int sleep = random.nextInt(1000);
                 //int sleep = 1000;
-                //System.out.println("Consumer sleeping: "+sleep);
                 sleep(sleep);
             } catch (InterruptedException ie) {
                 ie.printStackTrace();
@@ -78,14 +76,14 @@ class Consumer extends Thread{
 
 class Buffer {
     private int[] buffer;
-    private int write;//producer
-    private int read;//consumer
+    private int in;//producer
+    private int out;//consumer
     private int count;//number of items in buffer
 
     public Buffer(int size) {
         buffer = new int[size];
-        write = 0;
-        read = 0;
+        in = 0;
+        out = 0;
         count = 0;
     }
 
@@ -99,15 +97,15 @@ class Buffer {
                 ie.printStackTrace();
             }
         }
-        buffer[write] = value;
-        write = (write + 1) % size;
+        buffer[in] = value;
+        in = (in + 1) % size;
         count++;
         System.out.println("Produced " + value + "," + count + " items in Buffer.");
         notifyAll();
         return count;
     }//end put
 
-    public synchronized int withdraw() {
+    public synchronized int remove() {
         int size = buffer.length;
         while (count == 0) {
             System.out.println("Buffer is empty, stop consuming!");
@@ -118,8 +116,8 @@ class Buffer {
             }
         }
 
-        int next_consumed = buffer[read];
-        read = (read + 1) % size;
+        int next_consumed = buffer[out];
+        out = (out + 1) % size;
         count--;
         System.out.println("Consumed " + next_consumed + "," + count + " items in Buffer.");
         notifyAll();
@@ -133,12 +131,12 @@ class Buffer {
         return buffer;
     }
 
-    public int getWrite() {
-        return write;
+    public int getIn() {
+        return in;
     }
 
-    public int getRead() {
-        return read;
+    public int getOut() {
+        return out;
     }
 
     public int counter() {
