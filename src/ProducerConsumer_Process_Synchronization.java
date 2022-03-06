@@ -9,7 +9,9 @@ public class ProducerConsumer_Process_Synchronization {
         Random random = new Random();
         int missions = random.nextInt(20);
         Producer producer = new Producer(buffer, missions);
-
+        Consumer consumer = new Consumer(buffer,missions);
+        producer.start();
+        consumer.start();
     }
 }
 
@@ -32,7 +34,9 @@ class Producer extends Thread {
             buffer.put(i);
             try {
                 Random random = new Random();
-                int sleep = random.nextInt(1000);
+                int sleep = random.nextInt(100);
+                //System.out.println("Producer sleeping: "+sleep);
+                //int sleep =100;
                 sleep(sleep);
             } catch (InterruptedException ie) {
                 ie.printStackTrace();
@@ -40,7 +44,37 @@ class Producer extends Thread {
         }
 
     }
-}
+}//end Producer
+
+class Consumer extends Thread{
+    private Buffer buffer;
+    private int consumed;
+
+    public Consumer(Buffer buffer,int consumed){
+        this.buffer = buffer;
+        this.consumed = consumed;
+        if (consumed > 2) {
+            System.out.println(this.consumed + " items need to be consumed.");
+        } else {
+            System.out.println(this.consumed + " item needs to be consumed");
+        }
+    }
+
+    public void run(){
+        for (int i = 0; i < consumed; i++) {
+            buffer.withdraw();
+            try {
+                Random random = new Random();
+                int sleep = random.nextInt(100);
+                //int sleep = 1000;
+                //System.out.println("Consumer sleeping: "+sleep);
+                sleep(sleep);
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
+        }
+    }
+}//end Consumer
 
 class Buffer {
     private int[] buffer;
