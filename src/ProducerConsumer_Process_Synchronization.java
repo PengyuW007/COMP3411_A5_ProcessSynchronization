@@ -35,7 +35,6 @@ class Producer extends Thread {
             try {
                 Random random = new Random();
                 int sleep = random.nextInt(100);
-                //int sleep =100;
                 sleep(sleep);
             } catch (InterruptedException ie) {
                 ie.printStackTrace();
@@ -65,7 +64,6 @@ class Consumer extends Thread {
             try {
                 Random random = new Random();
                 int sleep = random.nextInt(1000);
-                //int sleep = 1000;
                 sleep(sleep);
             } catch (InterruptedException ie) {
                 ie.printStackTrace();
